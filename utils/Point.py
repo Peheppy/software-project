@@ -20,6 +20,9 @@ class Point(NamedTuple):
     def __str__(self):
         return f"({self.x}, {self.y})"
     
+    def __eq__(self, other):
+        return ((self.x == other.x) and (self.y == other.y))
+    
     def length(self):
         return math.sqrt(self.x**2 + self.y**2)
 

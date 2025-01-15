@@ -7,10 +7,15 @@ from utils.Point import Point
 from utils.FixedQueue import FixedQueue
 from utils.ssl.small_field import SSLHRenderField
 from agent import ExampleAgent
+from agent import SecondAgent
 from random_agent import RandomAgent
 import random
 import pygame
 from utils.CLI import Difficulty
+
+from field_positions import FieldManeager
+from field_graph import Graph
+from field_graph import Node
 
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
@@ -37,9 +42,14 @@ class SSLExampleEnv(SSLBaseEnv):
         self.rounds = self.max_rounds  ## because of the first round
         self.targets_per_round = 1
 
-        self.my_agents = {0: ExampleAgent(0, False)}
-        self.blue_agents = {i: RandomAgent(i, False) for i in range(1, 11)}
-        self.yellow_agents = {i: RandomAgent(i, True) for i in range(0, 11)}
+        # aqui
+        self.teste = FieldManeager()
+        self.teste_2 = Graph()
+
+        self.my_agents = {0: ExampleAgent(0, False, self.teste)}
+        self.blue_agents = {i: SecondAgent(i, False, self.teste) for i in range(1, 11)}
+        self.yellow_agents = {i: RandomAgent(i, True, self.teste) for i in range(0, 11)}
+
 
         self.gen_target_prob = 0.003
 
@@ -52,6 +62,7 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
+
         # Keep only the last M target points
         for target in self.targets:
             if target not in self.all_points:
@@ -78,12 +89,17 @@ class SSLExampleEnv(SSLBaseEnv):
             if self.targets_per_round < self.max_targets:
                 self.targets_per_round += 1
                 self.blue_agents.pop(len(self.my_agents))
+                
+                #aqui tenho que fazer algo
                 self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False)
 
         # Generate new targets
         if len(self.targets) == 0:
             for i in range(self.targets_per_round):
                 self.targets.append(Point(self.x(), self.y()))
+                
+                # update targets positions
+                self.teste.update_pos_target(i,self.targets[i])
         
         obstacles = {id: robot for id, robot in self.frame.robots_blue.items()}
         for i in range(0, self.n_robots_yellow):
@@ -137,6 +153,10 @@ class SSLExampleEnv(SSLBaseEnv):
 
         self.targets = [Point(x=self.x(), y=self.y())]
 
+
+        # Update target initial position
+        self.teste.update_pos_target(0,self.targets[0])
+
         places = KDTree()
         places.insert((pos_frame.ball.x, pos_frame.ball.y))
 
@@ -144,8 +164,11 @@ class SSLExampleEnv(SSLBaseEnv):
             pos = (self.x(), self.y())
             while places.get_nearest(pos)[1] < self.min_dist:
                 pos = (self.x(), self.y())
-
             places.insert(pos)
+            
+            # Update blue agents initial position
+            self.teste.update_pos_blue(i, Point(pos[0],pos[1]))
+            
             pos_frame.robots_blue[i] = Robot(x=pos[0], y=pos[1], theta=theta())
         
 
@@ -155,6 +178,10 @@ class SSLExampleEnv(SSLBaseEnv):
                 pos = (self.x(), self.y())
 
             places.insert(pos)
+            
+            # Update yellow initial position 
+            self.teste.update_pos_yellow(i, Point(pos[0],pos[1]))
+            
             pos_frame.robots_yellow[i] = Robot(x=pos[0], y=pos[1], theta=theta())
 
         return pos_frame
