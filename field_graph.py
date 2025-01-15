@@ -1,4 +1,5 @@
 from utils.Point import Point
+from field_positions import FieldManeager
 import heapq    
 
 class Node:
@@ -14,7 +15,8 @@ class Node:
         self.unblocked = True
 
 class Graph:
-    def __init__(self, collums=61, rows=41):
+    def __init__(self, fm = FieldManeager(), collums=61, rows=41):
+        self.fm = fm
         self.adj = {}
         self.vert_dist = round(6 / collums, 1)
 
@@ -27,6 +29,13 @@ class Graph:
                 self.adj[pos] = Node(pos)
                 # Connect neighboring nodes
                 self.add_neighbors(self.adj[pos])
+
+    def temp(self):
+        i = 0
+        for x in self.adj:
+            if self.adj[x].unblocked == False:
+                i += 1
+        print(i)
 
     def add_Point(self, condition:bool, x_increment:float, y_increment:float, pos_ref:Point):
         if(condition):
@@ -90,6 +99,11 @@ class Graph:
         return path
 
     def a_star_search(self, start_node:Node, dest_node:Node):
+        # define which positions are blocked
+        yellow_pos = []
+        for yellow in self.fm.yellow_agents:
+            yellow_pos.append(self.fm.yellow_agents[yellow])
+            self.adj[self.fm.yellow_agents[yellow]].unblocked = False
 
         path = []
 
@@ -140,5 +154,11 @@ class Graph:
                     neighbor_node.next_node = current_node
 
                     heapq.heappush(open_list, ((neighbor_node.f, random_id), neighbor_node))
-        if(len(path) == 0): self.reset_nodes_a_star_search() # clean grid after some usage of a* search
+        # after search, reset blocked nodes
+        for x in yellow_pos:
+            self.adj[x].unblocked = True
+        
+        # clean grid after some usage of a* search
+        if(len(path) == 0): self.reset_nodes_a_star_search() 
+        
         return path
