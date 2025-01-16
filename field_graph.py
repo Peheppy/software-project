@@ -100,6 +100,8 @@ class Graph:
 
     def a_star_search(self, start_node:Node, dest_node:Node):
         # define which positions are blocked
+        nodes_visited = []
+
         yellow_pos = []
         for yellow in self.fm.yellow_agents:
             yellow_pos.append(self.fm.yellow_agents[yellow])
@@ -127,6 +129,8 @@ class Graph:
             #  _, ?
             _, current_node = heapq.heappop(open_list)
 
+            nodes_visited.append(current_node)
+
             closed_list.add(current_node.pos)
 
             if current_node.pos == dest_node.pos:
@@ -138,6 +142,8 @@ class Graph:
                 random_id += 1 # for comparing in heappop/push
 
                 neighbor_node = self.adj[neighbor_pos]
+
+                nodes_visited.append(neighbor_node)
 
                 if neighbor_pos in closed_list or not neighbor_node.unblocked:
                     continue
@@ -157,8 +163,11 @@ class Graph:
         # after search, reset blocked nodes
         for x in yellow_pos:
             self.adj[x].unblocked = True
-        
-        # clean grid after some usage of a* search
-        if(len(path) == 0): self.reset_nodes_a_star_search() 
+
+        # clean grid after a* search
+        for x in nodes_visited:
+            self.adj[x.pos].f = self.adj[x.pos].g = float("inf")
+            self.adj[x.pos].h = 0
+            self.adj[x.pos].next_node = None
         
         return path

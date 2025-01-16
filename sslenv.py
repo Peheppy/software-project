@@ -43,12 +43,12 @@ class SSLExampleEnv(SSLBaseEnv):
         self.targets_per_round = 1
 
         # aqui
-        self.teste = FieldManeager()
-        self.teste_2 = Graph()
+        self.fm = FieldManeager()
+        self.graph = Graph()
 
-        self.my_agents = {0: ExampleAgent(0, False, self.teste)}
-        self.blue_agents = {i: SecondAgent(i, False, self.teste) for i in range(1, 11)}
-        self.yellow_agents = {i: RandomAgent(i, True, self.teste) for i in range(0, 11)}
+        self.my_agents = {0: ExampleAgent(0, False, self.fm)}
+        self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
+        self.yellow_agents = {i: RandomAgent(i, True, self.fm) for i in range(0, 11)}
 
 
         self.gen_target_prob = 0.003
@@ -62,6 +62,9 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
+        #print(len(self.graph.a_star_search(self.graph.adj[self.fm.blue_agents[0]],self.graph.adj[Point(0,0)])))
+        #print(self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)]))
+        #self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)])
 
         # Keep only the last M target points
         for target in self.targets:
@@ -99,7 +102,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 self.targets.append(Point(self.x(), self.y()))
                 
                 # update targets positions
-                self.teste.update_pos_target(i,self.targets[i])
+                self.fm.update_pos_target(i,self.targets[i])
         
         obstacles = {id: robot for id, robot in self.frame.robots_blue.items()}
         for i in range(0, self.n_robots_yellow):
@@ -155,7 +158,7 @@ class SSLExampleEnv(SSLBaseEnv):
 
 
         # Update target initial position
-        self.teste.update_pos_target(0,self.targets[0])
+        self.fm.update_pos_target(0,self.targets[0])
 
         places = KDTree()
         places.insert((pos_frame.ball.x, pos_frame.ball.y))
@@ -167,7 +170,7 @@ class SSLExampleEnv(SSLBaseEnv):
             places.insert(pos)
             
             # Update blue agents initial position
-            self.teste.update_pos_blue(i, Point(pos[0],pos[1]))
+            self.fm.update_pos_blue(i, Point(pos[0],pos[1]))
             
             pos_frame.robots_blue[i] = Robot(x=pos[0], y=pos[1], theta=theta())
         
@@ -180,7 +183,7 @@ class SSLExampleEnv(SSLBaseEnv):
             places.insert(pos)
             
             # Update yellow initial position 
-            self.teste.update_pos_yellow(i, Point(pos[0],pos[1]))
+            self.fm.update_pos_yellow(i, Point(pos[0],pos[1]))
             
             pos_frame.robots_yellow[i] = Robot(x=pos[0], y=pos[1], theta=theta())
 
