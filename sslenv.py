@@ -44,9 +44,9 @@ class SSLExampleEnv(SSLBaseEnv):
 
         # aqui
         self.fm = FieldManeager()
-        self.graph = Graph()
+        self.graph = Graph(self.fm)
 
-        self.my_agents = {0: ExampleAgent(0, False, self.fm)}
+        self.my_agents = {0: ExampleAgent(0, False, self.fm, self.graph)}
         self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
         self.yellow_agents = {i: RandomAgent(i, True, self.fm) for i in range(0, 11)}
 
@@ -62,6 +62,10 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
+        #print(len(self.fm.targets))
+        #for x in self.fm.targets:
+        #    print(x)
+        #    print(self.fm.targets[x])
         #print(len(self.graph.a_star_search(self.graph.adj[self.fm.blue_agents[0]],self.graph.adj[Point(0,0)])))
         #print(self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)]))
         #self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)])

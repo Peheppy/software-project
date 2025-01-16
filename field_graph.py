@@ -37,25 +37,26 @@ class Graph:
                 i += 1
         print(i)
 
-    def add_Point(self, condition:bool, x_increment:float, y_increment:float, pos_ref:Point):
+    def add_Point(self, condition:bool, x_increment:float, y_increment:float, pos_ref:Point, node:Node):
         if(condition):
             new_pos = Point(
                 round(pos_ref.x + x_increment,1), 
                 round(pos_ref.y + y_increment, 1))
-            self.adj[pos_ref].neighbors.append(new_pos)
+            #self.adj[pos_ref].neighbors.append(new_pos)
+            node.neighbors.append(new_pos)
 
     def add_neighbors(self, node:Node):
         pos = node.pos
 
-        self.add_Point(pos.x < 3, self.vert_dist, 0.0, pos)# Right neighbor
-        self.add_Point(pos.x < -3, -self.vert_dist, 0.0, pos)# Left neighbor
-        self.add_Point(pos.y > -2, 0.0, -self.vert_dist, pos)# Upper neighbor
-        self.add_Point(pos.y < 2, 0.0, self.vert_dist, pos)# Lower neighbor
+        self.add_Point(pos.x < 3, self.vert_dist, 0.0, pos, node)# Right neighbor
+        self.add_Point(pos.x < -3, -self.vert_dist, 0.0, pos, node)# Left neighbor
+        self.add_Point(pos.y > -2, 0.0, -self.vert_dist, pos, node)# Upper neighbor
+        self.add_Point(pos.y < 2, 0.0, self.vert_dist, pos, node)# Lower neighbor
         
-        self.add_Point((pos.x < 3 and pos.y > -2), self.vert_dist, -self.vert_dist, pos) # Right and Upper
-        self.add_Point((pos.x < 3 and pos.y < 2), self.vert_dist, self.vert_dist, pos) # Right and Lower
-        self.add_Point((pos.x > -3 and pos.y > -2), -self.vert_dist, -self.vert_dist, pos) # Left and Upper
-        self.add_Point((pos.x > -3 and pos.y < 2), -self.vert_dist, self.vert_dist, pos) # Left and Lower
+        self.add_Point((pos.x < 3 and pos.y > -2), self.vert_dist, -self.vert_dist, pos, node) # Right and Upper
+        self.add_Point((pos.x < 3 and pos.y < 2), self.vert_dist, self.vert_dist, pos, node) # Right and Lower
+        self.add_Point((pos.x > -3 and pos.y > -2), -self.vert_dist, -self.vert_dist, pos, node) # Left and Upper
+        self.add_Point((pos.x > -3 and pos.y < 2), -self.vert_dist, self.vert_dist, pos, node) # Left and Lower
     
     def add_node(self, node:Node):
         #add node and its neighbors in adj set
@@ -106,6 +107,8 @@ class Graph:
         for yellow in self.fm.yellow_agents:
             yellow_pos.append(self.fm.yellow_agents[yellow])
             self.adj[self.fm.yellow_agents[yellow]].unblocked = False
+            #for neighbors in self.adj[yellow]:
+            #   self.adj[self.fm.yellow_agents[yellow]].unblocked = False
 
         path = []
 

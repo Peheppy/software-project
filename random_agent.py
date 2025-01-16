@@ -16,7 +16,6 @@ class RandomAgent(BaseAgent):
         if len(self.targets) == 0:
             return
 
-        # 
         self.f_m.update_pos_yellow(self.id,self.pos)
 
         target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.targets[0])
