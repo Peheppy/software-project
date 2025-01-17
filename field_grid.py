@@ -1,7 +1,7 @@
 from utils.Point import Point
 from field_positions import FieldManeager
 import heapq    
-
+import copy
 class Node:
     def __init__(self):
         self.parent_i = 0
@@ -11,15 +11,15 @@ class Node:
 
     # Check if a cell is valid (inside grid boundaries)
 
-ROW = 21
-COL = 31
+ROW = 41
+COL = 61
 
 def is_valid(row, col):
     return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
 
 # Check if a cell is unblocked
 def is_unblocked(grid, row, col):
-    return grid[row][col] == 1
+    return grid[row][col] == True
 
 # Check if a cell is the destination
 def is_destination(row, col, dest):
@@ -47,18 +47,17 @@ def trace_path(cell_details, dest):
     #print(path)
     return path
 
-def a_star_search(grid, src, dest):
-    # Check if the source and destination are unblocked
-              ##if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
-              ##    print("Source or the destination is blocked")
-              ##    #return
+def get_neigh(i, j):
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        return [[i + dir[0], j + dir[1]] for dir in directions]
 
-    #grid = grid_src.copy()
-    # Check if we are already at the destination
-    # aqui da BO
-    if is_destination(src[0], src[1], dest):
-        print("We are already at the destination")
-        return [dest]
+def a_star_search(grid, src, dest):
+    # makes sure that the start agent is not surrounded by itself
+    grid[src[0]][src[1]] = True
+    for n in get_neigh(src[0],src[1]):
+        grid[n[0]][n[1]] = True
+
+    grid[dest[0]][dest[1]] = True
 
     # Initialize the closed list (visited cells)
     closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
@@ -80,14 +79,8 @@ def a_star_search(grid, src, dest):
     open_list = []
     heapq.heappush(open_list, (0.0, i, j))
 
-    # Initialize the flag for whether destination is found
-    found_dest = False
-
     # Main loop of A* search algorithm
     while len(open_list) > 0:
-        #if(found_dest):
-        #    break
-        
         # Pop the cell with the smallest f value from the open list
         p = heapq.heappop(open_list)
 
@@ -101,9 +94,9 @@ def a_star_search(grid, src, dest):
         for dir in directions:
             new_i = i + dir[0]
             new_j = j + dir[1]
-
+            
             # If the successor is valid, unblocked, and not visited
-            if is_destination(new_i, new_j, dest) or is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
                 # If the successor is the destination
                 if is_destination(new_i, new_j, dest):
                     # Set the parent of the destination cell
@@ -128,13 +121,6 @@ def a_star_search(grid, src, dest):
                         cell_details[new_i][new_j].h = h_new
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
-    # If the destination is not found after visiting all cells
-    if not found_dest:
-        print("Failed to find the destination cell")
-    if len(path) == 0:
-        print("OPA")
-    return path
-
 class Grid:
     def __init__(self, fm = FieldManeager()):
         self.fm = fm
@@ -142,18 +128,17 @@ class Grid:
 
     def point_to_index(self, point:Point):
         # in index x and y are swapped
-        return int((point.y + 2) * 5) ,int((point.x + 3) * 5) 
+        return int((point.y + 2) * 10) ,int((point.x + 3) * 10) 
     
     def index_to_point(self, i:int,j:int):
-        return Point(round(-3 + (0.2 * j),1), round(-2 + (0.2 * i),1))
+        return Point(round(-3 + (0.1 * j),1), round(-2 + (0.1 * i),1))
     
     def update_blocked_cells_grid(self, static = True, yellow_pos = []):
         # a grid is created in order to maintain the original grid "clean"
-        grid = self.grid.copy()
-        
+        grid = copy.deepcopy(self.grid)
+
         if static:
             obstacles_agents = []
-            
             yellow_agents = self.fm.yellow_agents.copy()
             blue_agents = self.fm.blue_agents.copy()
             
@@ -161,16 +146,15 @@ class Grid:
                 obstacles_agents.append(yellow_agents[x])
             for x in blue_agents:
                 obstacles_agents.append(blue_agents[x])
-            
         else:
             obstacles_agents = yellow_pos.copy()
 
         for pos in obstacles_agents:
             i, j = self.point_to_index(pos)
             grid[i][j] = False
-            #for n in self.get_neighbors(i,j):
-            #   grid[n[0]][n[1]] = False
-    
+            for n in self.get_neighbors(i, j):
+                if is_valid(n[0], n[1]):
+                    grid[n[0]][n[1]] = False
         return grid
     
     def get_neighbors(self, i, j):
@@ -182,7 +166,7 @@ class Grid:
         src = self.point_to_index(src_pos)
         dest = self.point_to_index(dest_pos)
 
-        updated_grid = self.update_blocked_cells_grid(static,yellow_pos).copy()
+        updated_grid = self.update_blocked_cells_grid(static,yellow_pos)
         
         index_path = a_star_search(updated_grid,src,dest)
         point_path = [self.index_to_point(cell[0],cell[1]) for cell in index_path]
@@ -190,6 +174,7 @@ class Grid:
         # this makes sure that the target will be touched
         point_path.append(dest_pos)
 
+        del updated_grid
         return point_path
 
 

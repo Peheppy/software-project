@@ -20,25 +20,19 @@ class ExampleAgent(BaseAgent):
         self.path = self.grid.search(self.pos,dest_pos).copy()
         self.path_index = 0
         self.max_path_index = len(self.path)
-        #self.max_path_index = len(self.path) - 1
         self.following_path = True
 
     def follow_path(self):
         # verify if has come to the end of the path
-        #print(self.path_index)
         if self.max_path_index == self.path_index:
             self.following_path = False
         # still has points in path to go
         else:
             # verify if has reached the current objective point
-            if self.pos.dist_to(self.path[self.path_index]) < 0.15:
+            if self.pos.dist_to(self.path[self.path_index]) < 0.1:
                 self.path_index += 1
-            # has not reach, so it continues to go to current objective point
+            # has not reached, so it continues to go to current objective point
             else:
-                #print(self.path_index)
-                #print(self.max_path_index)
-                #print(self.path)
-                #print(self.path[self.max_path_index - 1])
                 target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index])
                 self.set_vel(target_velocity)
                 self.set_angle_vel(target_angle_velocity)

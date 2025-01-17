@@ -61,6 +61,8 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
+        #print(self.grid.index_to_point(23,2))
+        #print(self.grid.point_to_index(Point(-2.8,0.3)))
 
         # Keep only the last M target points
         for target in self.targets:
