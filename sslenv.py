@@ -16,6 +16,8 @@ from utils.CLI import Difficulty
 from field_positions import FieldManeager
 from field_graph import Graph
 from field_graph import Node
+from field_grid import Node as Cell
+from field_grid import Grid
 
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
@@ -42,14 +44,14 @@ class SSLExampleEnv(SSLBaseEnv):
         self.rounds = self.max_rounds  ## because of the first round
         self.targets_per_round = 1
 
-        # aqui
         self.fm = FieldManeager()
         self.graph = Graph(self.fm)
+
+        self.grid = Grid(self.fm)
 
         self.my_agents = {0: ExampleAgent(0, False, self.fm, self.graph)}
         self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
         self.yellow_agents = {i: RandomAgent(i, True, self.fm) for i in range(0, 11)}
-
 
         self.gen_target_prob = 0.003
 
@@ -62,13 +64,13 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        #print(len(self.fm.targets))
-        #for x in self.fm.targets:
-        #    print(x)
-        #    print(self.fm.targets[x])
-        #print(len(self.graph.a_star_search(self.graph.adj[self.fm.blue_agents[0]],self.graph.adj[Point(0,0)])))
-        #print(self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)]))
-        #self.graph.a_star_search(self.graph.adj[Point(0,1)],self.graph.adj[Point(0,0)])
+        #print(self.grid.search(Point(0,0),Point(1,0)))
+        #for i in range(0, len(self.grid.grid)):
+        #    for j in range(0,len(self.grid.grid[i])):
+        #        if self.grid.grid[i][j] == False:
+        #            print(self.grid.index_to_point(i,j))
+        #print("\n")
+
 
         # Keep only the last M target points
         for target in self.targets:
@@ -95,10 +97,11 @@ class SSLExampleEnv(SSLBaseEnv):
             self.rounds = self.max_rounds
             if self.targets_per_round < self.max_targets:
                 self.targets_per_round += 1
+
                 self.blue_agents.pop(len(self.my_agents))
                 
                 #aqui tenho que fazer algo
-                self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False)
+                self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm, self.graph)
 
         # Generate new targets
         if len(self.targets) == 0:
@@ -208,6 +211,14 @@ class SSLExampleEnv(SSLBaseEnv):
                 self.window_surface,
                 pos_transform,
                 target,
+                (255, 0, 255),
+            )
+
+        for blue in self.fm.yellow_agents:
+            self.draw_target(
+                self.window_surface,
+                pos_transform,
+                self.fm.yellow_agents[blue],
                 (255, 0, 255),
             )
 
