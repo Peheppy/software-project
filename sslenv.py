@@ -61,13 +61,6 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        print(self.grid.search(Point(0,0),Point(1,0)))
-        for i in range(0, len(self.grid.grid)):
-            for j in range(0,len(self.grid.grid[i])):
-                if self.grid.grid[i][j] == False:
-                    print(self.grid.index_to_point(i,j))
-        print("\n")
-
 
         # Keep only the last M target points
         for target in self.targets:
@@ -211,11 +204,19 @@ class SSLExampleEnv(SSLBaseEnv):
                 (255, 0, 255),
             )
 
-        for blue in self.fm.yellow_agents:
+        for blue in self.fm.blue_agents:
             self.draw_target(
                 self.window_surface,
                 pos_transform,
-                self.fm.yellow_agents[blue],
+                self.fm.blue_agents[blue],
+                (255, 0, 255),
+            )
+
+        for yellow in self.fm.yellow_agents:
+            self.draw_target(
+                self.window_surface,
+                pos_transform,
+                self.fm.yellow_agents[yellow],
                 (255, 0, 255),
             )
 

@@ -41,27 +41,24 @@ def trace_path(cell_details, dest):
         temp_col = cell_details[row][col].parent_j
         row = temp_row
         col = temp_col
-    path.append([row, col])  # Add the source cell
+    #path.append([row, col])  # Add the source cell
     path.reverse()  # Reverse the path to get it from source to destination
 
     #print(path)
     return path
 
 def a_star_search(grid, src, dest):
-    # Check if the source and destination are valid
-    #if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
-    #    print("Source or destination is invalid")
-    #    return []
-
     # Check if the source and destination are unblocked
-    if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
-        print("Source or the destination is blocked")
-        #return
+              ##if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
+              ##    print("Source or the destination is blocked")
+              ##    #return
 
+    #grid = grid_src.copy()
     # Check if we are already at the destination
+    # aqui da BO
     if is_destination(src[0], src[1], dest):
         print("We are already at the destination")
-        #return
+        return [dest]
 
     # Initialize the closed list (visited cells)
     closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
@@ -88,6 +85,9 @@ def a_star_search(grid, src, dest):
 
     # Main loop of A* search algorithm
     while len(open_list) > 0:
+        #if(found_dest):
+        #    break
+        
         # Pop the cell with the smallest f value from the open list
         p = heapq.heappop(open_list)
 
@@ -103,16 +103,14 @@ def a_star_search(grid, src, dest):
             new_j = j + dir[1]
 
             # If the successor is valid, unblocked, and not visited
-            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+            if is_destination(new_i, new_j, dest) or is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
                 # If the successor is the destination
                 if is_destination(new_i, new_j, dest):
                     # Set the parent of the destination cell
                     cell_details[new_i][new_j].parent_i = i
                     cell_details[new_i][new_j].parent_j = j
                     # Trace and print the path from source to destination
-                    path = trace_path(cell_details, dest)
-                    found_dest = True
-                    continue
+                    return trace_path(cell_details, dest)
                 else:
                     # Calculate the new f, g, and h values
                     g_new = cell_details[i][j].g + 1.0
@@ -149,27 +147,50 @@ class Grid:
     def index_to_point(self, i:int,j:int):
         return Point(round(-3 + (0.2 * j),1), round(-2 + (0.2 * i),1))
     
-    def update_blocked_cells(self, static = True, yellow_pos = []):
+    def update_blocked_cells_grid(self, static = True, yellow_pos = []):
+        # a grid is created in order to maintain the original grid "clean"
+        grid = self.grid.copy()
+        
         if static:
+            obstacles_agents = []
+            
             yellow_agents = self.fm.yellow_agents.copy()
+            blue_agents = self.fm.blue_agents.copy()
+            
+            for x in yellow_agents:
+                obstacles_agents.append(yellow_agents[x])
+            for x in blue_agents:
+                obstacles_agents.append(blue_agents[x])
+            
         else:
-            yellow_agents = yellow_pos.copy()
+            obstacles_agents = yellow_pos.copy()
 
-        for pos in yellow_agents:
-            i, j = self.point_to_index(yellow_agents[pos])
-            self.grid[i][j] = False
+        for pos in obstacles_agents:
+            i, j = self.point_to_index(pos)
+            grid[i][j] = False
+            #for n in self.get_neighbors(i,j):
+            #   grid[n[0]][n[1]] = False
     
+        return grid
+    
+    def get_neighbors(self, i, j):
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        return [[i + dir[0], j + dir[1]] for dir in directions]
+
     def search(self, src_pos:Point, dest_pos:Point, static = True, yellow_pos = []):
 
         src = self.point_to_index(src_pos)
         dest = self.point_to_index(dest_pos)
 
-        self.update_blocked_cells(static,yellow_pos)
+        updated_grid = self.update_blocked_cells_grid(static,yellow_pos).copy()
         
-        path = a_star_search(self.grid,src,dest)
-        new_path = [self.index_to_point(cell[0],cell[1]) for cell in path]
+        index_path = a_star_search(updated_grid,src,dest)
+        point_path = [self.index_to_point(cell[0],cell[1]) for cell in index_path]
+        
+        # this makes sure that the target will be touched
+        point_path.append(dest_pos)
 
-        return new_path
+        return point_path
 
 
 

@@ -31,10 +31,14 @@ class ExampleAgent(BaseAgent):
         # still has points in path to go
         else:
             # verify if has reached the current objective point
-            if self.pos.dist_to(self.path[self.path_index]) < 0.2:
+            if self.pos.dist_to(self.path[self.path_index]) < 0.15:
                 self.path_index += 1
             # has not reach, so it continues to go to current objective point
             else:
+                #print(self.path_index)
+                #print(self.max_path_index)
+                #print(self.path)
+                #print(self.path[self.max_path_index - 1])
                 target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index])
                 self.set_vel(target_velocity)
                 self.set_angle_vel(target_angle_velocity)
@@ -49,11 +53,8 @@ class ExampleAgent(BaseAgent):
         if self.following_path:
             self.follow_path()
         else:
-            self.a_star_path(self.targets[0])
+            self.a_star_path(self.targets[self.id])
 
-        #target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.targets[0])
-        #self.set_vel(target_velocity)
-        #self.set_angle_vel(target_angle_velocity)
         return
 
     def post_decision(self):
@@ -74,8 +75,8 @@ class SecondAgent(BaseAgent):
         target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.targets[0])
 
         vel_mult = self.vel_mult 
-        self.set_vel(target_velocity)
-        self.set_angle_vel(target_angle_velocity)
+        #self.set_vel(target_velocity)
+        #self.set_angle_vel(target_angle_velocity)
         return
 
     def post_decision(self):
