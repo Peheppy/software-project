@@ -33,7 +33,7 @@ class ExampleAgent(BaseAgent):
                 self.path_index += 1
             # has not reached, so it continues to go to current objective point
             else:
-                target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index])
+                target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index]) 
                 self.set_vel(target_velocity)
                 self.set_angle_vel(target_angle_velocity)
 
