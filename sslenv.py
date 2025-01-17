@@ -14,8 +14,6 @@ import pygame
 from utils.CLI import Difficulty
 
 from field_positions import FieldManeager
-from field_graph import Graph
-from field_graph import Node
 from field_grid import Node as Cell
 from field_grid import Grid
 
@@ -45,11 +43,10 @@ class SSLExampleEnv(SSLBaseEnv):
         self.targets_per_round = 1
 
         self.fm = FieldManeager()
-        self.graph = Graph(self.fm)
 
         self.grid = Grid(self.fm)
 
-        self.my_agents = {0: ExampleAgent(0, False, self.fm, self.graph)}
+        self.my_agents = {0: ExampleAgent(0, False, self.fm)}
         self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
         self.yellow_agents = {i: RandomAgent(i, True, self.fm) for i in range(0, 11)}
 
@@ -64,12 +61,12 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        #print(self.grid.search(Point(0,0),Point(1,0)))
-        #for i in range(0, len(self.grid.grid)):
-        #    for j in range(0,len(self.grid.grid[i])):
-        #        if self.grid.grid[i][j] == False:
-        #            print(self.grid.index_to_point(i,j))
-        #print("\n")
+        print(self.grid.search(Point(0,0),Point(1,0)))
+        for i in range(0, len(self.grid.grid)):
+            for j in range(0,len(self.grid.grid[i])):
+                if self.grid.grid[i][j] == False:
+                    print(self.grid.index_to_point(i,j))
+        print("\n")
 
 
         # Keep only the last M target points
@@ -101,7 +98,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 self.blue_agents.pop(len(self.my_agents))
                 
                 #aqui tenho que fazer algo
-                self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm, self.graph)
+                self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm)
 
         # Generate new targets
         if len(self.targets) == 0:

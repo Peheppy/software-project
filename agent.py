@@ -3,15 +3,13 @@ from utils.ssl.base_agent import BaseAgent
 from utils.Point import Point
 
 from field_positions import FieldManeager
-from field_graph import Graph
 from field_grid import Grid
 
 class ExampleAgent(BaseAgent):
-    def __init__(self, id=0, yellow=False, fm = FieldManeager(), graph = Graph()):
+    def __init__(self, id=0, yellow=False, fm = FieldManeager()):
         super().__init__(id, yellow)
         self.fm = fm
         self.grid = Grid(self.fm)
-        self.graph = graph
 
         self.path_index = 0
         self.max_path_index = 0
@@ -37,10 +35,6 @@ class ExampleAgent(BaseAgent):
                 self.path_index += 1
             # has not reach, so it continues to go to current objective point
             else:
-                print(self.path_index)
-                print(self.max_path_index)
-                print(self.pos.dist_to(self.path[self.path_index]))
-                print("\n")
                 target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index])
                 self.set_vel(target_velocity)
                 self.set_angle_vel(target_angle_velocity)
