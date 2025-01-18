@@ -4,6 +4,7 @@ from utils.Point import Point
 
 from utils.FieldPositions import FieldPositions
 from utils.FieldGrid import FieldGrid
+from utils.PathManager import PathManager
 
 class ExampleAgent(BaseAgent):
     def __init__(self, id=0, yellow=False, fm = FieldPositions()):
@@ -18,6 +19,8 @@ class ExampleAgent(BaseAgent):
 
     def a_star_path(self, dest_pos:Point):
         self.path = self.grid.astar_search(self.pos,dest_pos, self.fm.all_agents).copy()
+        PathManager().path_trim(self.path)
+        
         self.path_index = 0
         self.max_path_index = len(self.path)
         self.following_path = True
@@ -46,7 +49,7 @@ class ExampleAgent(BaseAgent):
         if self.following_path:
             self.follow_path()
         else:
-            self.a_star_path(self.targets[self.id])
+            self.a_star_path(self.targets[0])
 
         return
 

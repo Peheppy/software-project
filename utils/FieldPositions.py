@@ -5,12 +5,10 @@ from utils.FieldGrid import FieldGrid
 
 class FieldPositions(FieldGrid):
     def __init__(self):
-        #self.blue_agents = [[Point,Point]] * 11
-        #self.yellow_agents = [[Point,Point]] * 11
         self.blue_agents = [Point] * 11
         self.yellow_agents = [Point] * 11
         self.all_agents = [Point] * 22
-        self.targets = {}
+        self.targets = [Point] * 4
 
     def update_pos_blue(self, id:int, pos:Point):
         self.blue_agents[id] = pos

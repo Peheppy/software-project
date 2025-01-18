@@ -10,8 +10,6 @@ class Cell:
         self.f = self.g = float("inf")
         self.h = 0
 
-    # Check if a cell is valid (inside grid boundaries)
-
 # Trace the path from source to destination
 def trace_path(cell_details, dest):
     path = []
@@ -52,44 +50,82 @@ class FieldGrid(SSLHRenderField):
     
     def get_neighbors(self,i, j):
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
-        return [[i + dir[0], j + dir[1]] for dir in directions]
+        return [
+            [i + dir[0], j + dir[1]] 
+            for dir in directions 
+            if self.__is_valid(i + dir[0], j + dir[1])
+        ]
     
     def __update_blocked_cells_grid(self, obstacles_pos = []):
         # a grid is created in order to maintain the original grid "clean"
         grid = copy.deepcopy(self.grid)
 
+        # Directions to check corners around the central position
+        corner_directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        # Process each obstacle position
         for pos in obstacles_pos:
             i, j = self.point_to_index(pos)
-            grid[i][j] = False
-            for n in self.get_neighbors(i, j):
-                if self.__is_valid(n[0], n[1]):
-                    grid[n[0]][n[1]] = False
+
+            # Mark the obstacle's center as blocked if valid
+            if self.__is_valid(i, j):
+                grid[i][j] = False
+
+            # Mark corners and their neighbors as blocked
+            for dir in corner_directions:
+                corner_i = i + dir[0]
+                corner_j = j + dir[1]
+                if self.__is_valid(corner_i, corner_j):
+                    grid[corner_i][corner_j] = False
+                for n in self.get_neighbors(corner_i, corner_j):
+                    if self.__is_valid(n[0], n[1]):
+                        grid[n[0]][n[1]] = False
+
+
+
+        #for pos in obstacles_pos:
+        #    i, j = self.point_to_index(pos)
+        #    # sets osbtacle center point as unreacheable
+        #    grid[i][j] = False
+        #    for n in self.get_neighbors(i, j):
+        #        if self.__is_valid(n[0], n[1]):
+        #            # sets osbtacle external points as unreacheable
+        #            grid[n[0]][n[1]] = False
         return grid
     
+    def __update_cell_details(self, cell, p, g = 0, h = 0):
+        cell.g = g
+        cell.h = h
+        cell.f = g + h
+        cell.parent_i = p[0]
+        cell.parent_j = p[1]
+
     #COPIED AND MODIFICATED FROM https://www.geeksforgeeks.org/a-search-algorithm/
     def __a_star_search_inter(self, grid, src, dest):
-        # makes sure that the start agent is not surrounded by itself
-        grid[src[0]][src[1]] = True
-        for n in self.get_neighbors(src[0],src[1]):
-            grid[n[0]][n[1]] = True
 
-        grid[dest[0]][dest[1]] = True
+        corner_directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        # makes sure that the start agent is not surrounded by itself
+        # makes sure that the target is reachable
+        for pos in [src, dest]:
+            for dir in corner_directions:
+                corner_i = pos[0] + dir[0]
+                corner_j = pos[1] + dir[1]
+                if self.__is_valid(corner_i, corner_j):
+                    grid[corner_i][corner_j] = True
+                for n in self.get_neighbors(corner_i, corner_j):
+                    if self.__is_valid(n[0], n[1]):
+                        grid[n[0]][n[1]] = True
 
         # Initialize the closed list (visited cells)
         closed_list = [[False for _ in range(self.col)] for _ in range(self.row)]
         # Initialize the details of each cell
         cell_details = [[Cell() for _ in range(self.col)] for _ in range(self.row)]
 
-        path = []
-
         # Initialize the start cell details
         i = src[0]
         j = src[1]
-        cell_details[i][j].f = 0
-        cell_details[i][j].g = 0
-        cell_details[i][j].h = 0
-        cell_details[i][j].parent_i = i
-        cell_details[i][j].parent_j = j
+        self.__update_cell_details(cell_details[i][j], src)
 
         # Initialize the open list (cells to be visited) with the start cell
         open_list = []
@@ -131,11 +167,7 @@ class FieldGrid(SSLHRenderField):
                             # Add the cell to the open list
                             heapq.heappush(open_list, (f_new, new_i, new_j))
                             # Update the cell details
-                            cell_details[new_i][new_j].f = f_new
-                            cell_details[new_i][new_j].g = g_new
-                            cell_details[new_i][new_j].h = h_new
-                            cell_details[new_i][new_j].parent_i = i
-                            cell_details[new_i][new_j].parent_j = j    
+                            self.__update_cell_details(cell_details[new_i][new_j],[i,j],g_new,h_new)   
 
     def astar_search(self, src_pos:Point, dest_pos:Point, obstacles_pos = []):
 
@@ -152,6 +184,3 @@ class FieldGrid(SSLHRenderField):
 
         del updated_grid
         return point_path
-
-
-
