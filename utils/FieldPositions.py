@@ -25,6 +25,5 @@ class FieldPositions(FieldGrid):
         other_agents = []
         for x in range(len(self.all_agents)):
             if not x == id: other_agents.append(self.all_agents[x])
-
         return other_agents
 

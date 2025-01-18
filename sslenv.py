@@ -60,9 +60,6 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        #print(self.grid.index_to_point(20,30))
-        #print(self.grid.point_to_index(Point(0,0)))
-        #self.grid.astar_search(Point(0,0),Point(1,2))
 
         # Keep only the last M target points
         for target in self.targets:
@@ -155,7 +152,6 @@ class SSLExampleEnv(SSLBaseEnv):
 
         self.targets = [Point(x=self.x(), y=self.y())]
 
-
         # Update target initial position
         self.fm.update_pos_target(0,self.targets[0])
 
@@ -206,6 +202,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 (255, 0, 255),
             )
 
+        # debug
         for blue in self.fm.blue_agents:
             self.draw_target(
                 self.window_surface,
@@ -214,6 +211,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 (255, 0, 255),
             )
 
+        # debug
         for yellow in self.fm.yellow_agents:
             self.draw_target(
                 self.window_surface,
@@ -227,10 +225,15 @@ class SSLExampleEnv(SSLBaseEnv):
             for point in my_path:
                 pygame.draw.circle(self.window_surface, (255, 0, 0), point, 3)
         
-        for i in range(len(self.robots_paths)):
-            if len(self.robots_paths[i]) > 1:
-                my_path = [pos_transform(*p) for p in self.robots_paths[i]]
-                pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
+        #for i in range(len(self.robots_paths)):
+        #    if len(self.robots_paths[i]) > 1:
+        #        my_path = [pos_transform(*p) for p in self.robots_paths[i]]
+        #        pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
+
+        # blue line (debug)
+        if len(self.my_agents[0].path) > 1:
+            my_path = [pos_transform(*p) for p in self.my_agents[0].path]
+            pygame.draw.lines(self.window_surface, (0, 0, 200), False, my_path, 1)
 
     def draw_target(self, screen, transformer, point, color):
         x, y = transformer(point.x, point.y)
