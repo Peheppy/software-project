@@ -13,9 +13,8 @@ import random
 import pygame
 from utils.CLI import Difficulty
 
-from field_positions import FieldManeager
-from field_grid import Node as Cell
-from field_grid import Grid
+from utils.FieldPositions import FieldPositions
+from utils.FieldGrid import FieldGrid, Cell
 
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
@@ -42,9 +41,9 @@ class SSLExampleEnv(SSLBaseEnv):
         self.rounds = self.max_rounds  ## because of the first round
         self.targets_per_round = 1
 
-        self.fm = FieldManeager()
 
-        self.grid = Grid(self.fm)
+        self.grid = FieldGrid()
+        self.fm = FieldPositions()
 
         self.my_agents = {0: ExampleAgent(0, False, self.fm)}
         self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
@@ -61,8 +60,9 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        #print(self.grid.index_to_point(23,2))
-        #print(self.grid.point_to_index(Point(-2.8,0.3)))
+        #print(self.grid.index_to_point(20,30))
+        #print(self.grid.point_to_index(Point(0,0)))
+        #self.grid.astar_search(Point(0,0),Point(1,2))
 
         # Keep only the last M target points
         for target in self.targets:
@@ -210,7 +210,7 @@ class SSLExampleEnv(SSLBaseEnv):
             self.draw_target(
                 self.window_surface,
                 pos_transform,
-                self.fm.blue_agents[blue],
+                blue,
                 (255, 0, 255),
             )
 
@@ -218,7 +218,7 @@ class SSLExampleEnv(SSLBaseEnv):
             self.draw_target(
                 self.window_surface,
                 pos_transform,
-                self.fm.yellow_agents[yellow],
+                yellow,
                 (255, 0, 255),
             )
 

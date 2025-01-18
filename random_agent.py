@@ -4,10 +4,10 @@ from utils.Point import Point
 from utils.ssl.base_agent import BaseAgent
 import random
 
-from field_positions import FieldManeager
+from utils.FieldPositions import FieldPositions
 
 class RandomAgent(BaseAgent):
-    def __init__(self, id=0, yellow=False, f_m = FieldManeager(), vel_mult=0.3):
+    def __init__(self, id=0, yellow=False, f_m = FieldPositions(), vel_mult=0.3):
         super().__init__(id, yellow)
         self.f_m = f_m
         self.vel_mult = vel_mult

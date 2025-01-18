@@ -2,14 +2,14 @@ from utils.ssl.Navigation import Navigation
 from utils.ssl.base_agent import BaseAgent
 from utils.Point import Point
 
-from field_positions import FieldManeager
-from field_grid import Grid
+from utils.FieldPositions import FieldPositions
+from utils.FieldGrid import FieldGrid
 
 class ExampleAgent(BaseAgent):
-    def __init__(self, id=0, yellow=False, fm = FieldManeager()):
+    def __init__(self, id=0, yellow=False, fm = FieldPositions()):
         super().__init__(id, yellow)
         self.fm = fm
-        self.grid = Grid(self.fm)
+        self.grid = FieldGrid()
 
         self.path_index = 0
         self.max_path_index = 0
@@ -17,7 +17,7 @@ class ExampleAgent(BaseAgent):
         self.following_path = False
 
     def a_star_path(self, dest_pos:Point):
-        self.path = self.grid.search(self.pos,dest_pos).copy()
+        self.path = self.grid.astar_search(self.pos,dest_pos, self.fm.all_agents).copy()
         self.path_index = 0
         self.max_path_index = len(self.path)
         self.following_path = True
@@ -37,7 +37,6 @@ class ExampleAgent(BaseAgent):
                 self.set_vel(target_velocity)
                 self.set_angle_vel(target_angle_velocity)
 
-
     def decision(self):
         if len(self.targets) == 0:
             return
@@ -55,7 +54,7 @@ class ExampleAgent(BaseAgent):
         pass
 
 class SecondAgent(BaseAgent):
-    def __init__(self, id=0, yellow=False, vel_mult=0.3, fm = FieldManeager()):
+    def __init__(self, id=0, yellow=False, vel_mult=0.3, fm = FieldPositions()):
         super().__init__(id, yellow)
         self.vel_mult = vel_mult
         self.fm = fm
