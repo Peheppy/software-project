@@ -10,7 +10,7 @@ class ExampleAgent(BaseAgent):
     def __init__(self, id=0, yellow=False, fm = FieldPositions()):
         super().__init__(id, yellow)
         self.fm = fm
-        self.grid = FieldGrid()
+        self.pm = PathManager()
 
         self.path_index = 0
         self.max_path_index = 0
@@ -18,8 +18,8 @@ class ExampleAgent(BaseAgent):
         self.following_path = False
 
     def a_star_path(self, dest_pos:Point):
-        self.path = self.grid.astar_search(self.pos,dest_pos, self.fm.all_agents).copy()
-        PathManager().path_trim(self.path)
+        self.path = self.pm.astar_search(self.pos,dest_pos, self.fm.get_other_agents(self.id)).copy()
+        self.pm.path_trim(self.path)
         
         self.path_index = 0
         self.max_path_index = len(self.path)

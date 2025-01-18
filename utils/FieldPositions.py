@@ -21,3 +21,10 @@ class FieldPositions(FieldGrid):
     def update_pos_target(self, id:int, pos:Point):
         self.targets[id] = pos
 
+    def get_other_agents(self, id:int):
+        other_agents = []
+        for x in range(len(self.all_agents)):
+            if not x == id: other_agents.append(self.all_agents[x])
+
+        return other_agents
+

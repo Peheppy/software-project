@@ -14,7 +14,7 @@ import pygame
 from utils.CLI import Difficulty
 
 from utils.FieldPositions import FieldPositions
-from utils.FieldGrid import FieldGrid, Cell
+from utils.FieldGrid import FieldGrid
 
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
