@@ -231,8 +231,8 @@ class SSLExampleEnv(SSLBaseEnv):
         #        pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
 
         # blue line (debug)
-        if len(self.my_agents[0].path) > 1:
-            my_path = [pos_transform(*p) for p in self.my_agents[0].path]
+        if len(self.my_agents[0].pm.path) > 1:
+            my_path = [pos_transform(*p) for p in self.my_agents[0].pm.path]
             pygame.draw.lines(self.window_surface, (0, 0, 200), False, my_path, 1)
 
     def draw_target(self, screen, transformer, point, color):

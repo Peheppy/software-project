@@ -3,7 +3,6 @@ from utils.ssl.base_agent import BaseAgent
 from utils.Point import Point
 
 from utils.FieldPositions import FieldPositions
-from utils.FieldGrid import FieldGrid
 from utils.PathManager import PathManager
 
 class ExampleAgent(BaseAgent):
@@ -11,34 +10,28 @@ class ExampleAgent(BaseAgent):
         super().__init__(id, yellow)
         self.fm = fm
         self.pm = PathManager()
-
-        self.path_index = 0
-        self.max_path_index = 0
-        self.path = []
-        self.following_path = False
-
-    def a_star_path(self, dest_pos:Point):
-        self.path = self.pm.astar_search(self.pos,dest_pos, self.fm.get_other_agents(self.id)).copy()
-        self.pm.path_trim(self.path)
         
-        self.path_index = 0
-        self.max_path_index = len(self.path)
-        self.following_path = True
+        self.aux_path:list[Point]
+        self.aux_pos:Point
 
-    def follow_path(self):
-        # verify if has come to the end of the path
-        if self.max_path_index == self.path_index:
-            self.following_path = False
-        # still has points in path to go
+    def teste(self, start_pos:Point, dest_pos:Point):
+        # verify if there not is a path already
+        if not len(self.pm.path) > 0:
+
+            self.pm.astar_search(start_pos, dest_pos, self.fm.get_other_agents(self.id), True)
+            self.pm.initiate_values()
+
+            self.aux_path = self.pm.path.copy()
+            self.aux_pos = self.pos
         else:
-            # verify if has reached the current objective point
-            if self.pos.dist_to(self.path[self.path_index]) < 0.1:
-                self.path_index += 1
-            # has not reached, so it continues to go to current objective point
+            self.pm.astar_search(self.aux_pos, dest_pos, self.fm.get_other_agents(self.id), True)
+            comparision_list = [item for item in self.pm.path if item not in self.aux_path]
+
+            # verify if an obstacle is in the last computed path
+            if len(comparision_list) > 0:
+                self.pm.path.clear() # in order to go to the first verification in the method
             else:
-                target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.path[self.path_index]) 
-                self.set_vel(target_velocity)
-                self.set_angle_vel(target_angle_velocity)
+                self.pm.follow_path(self)
 
     def decision(self):
         if len(self.targets) == 0:
@@ -46,10 +39,7 @@ class ExampleAgent(BaseAgent):
         
         self.fm.update_pos_blue(self.id, self.pos)
 
-        if self.following_path:
-            self.follow_path()
-        else:
-            self.a_star_path(self.targets[0])
+        self.teste(self.pos, self.targets[0])
 
         return
 
