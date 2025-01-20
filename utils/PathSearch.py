@@ -52,7 +52,7 @@ class AStarSearch(FieldGrid):
         return pos
     
     # Trace the path from source to destination
-    def trace_path(self,cell_details, dest):
+    def trace_path(self, cell_details:list, dest:list):
         path = []
         row = dest[0]
         col = dest[1]

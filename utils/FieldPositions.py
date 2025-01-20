@@ -1,14 +1,10 @@
 from utils.Point import Point
-from utils.ssl import Navigation
-
-from utils.FieldGrid import FieldGrid
-
-class FieldPositions(FieldGrid):
+class FieldPositions():
     def __init__(self):
         self.blue_agents = [Point] * 11
         self.yellow_agents = [Point] * 11
         self.all_agents = [Point] * 22
-        self.targets = [Point] * 4
+        self.targets = [Point(-10,-10)] * 4
 
     def update_pos_blue(self, id:int, pos:Point):
         self.blue_agents[id] = pos

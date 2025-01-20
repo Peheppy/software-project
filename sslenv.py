@@ -14,6 +14,8 @@ import pygame
 from utils.CLI import Difficulty
 
 from utils.FieldPositions import FieldPositions
+from utils.GameManager import GameManager
+
 from utils.FieldGrid import FieldGrid
 
 class SSLExampleEnv(SSLBaseEnv):
@@ -43,7 +45,7 @@ class SSLExampleEnv(SSLBaseEnv):
 
 
         self.grid = FieldGrid()
-        self.fm = FieldPositions()
+        self.fm = GameManager()
 
         self.my_agents = {0: ExampleAgent(0, False, self.fm)}
         self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
@@ -230,6 +232,17 @@ class SSLExampleEnv(SSLBaseEnv):
         #        my_path = [pos_transform(*p) for p in self.robots_paths[i]]
         #        pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
 
+
+        #for i in range(len(self.my_agents[0].pm.grid)):
+        #    for j in range(len(self.my_agents[0].pm.grid[i])):
+        #        if self.my_agents[0].pm.grid[i][j] == False:
+        #            self.draw_target(
+        #                self.window_surface,
+        #                pos_transform,
+        #                self.my_agents[0].pm.index_to_point(i,j),
+        #                (0, 200, 0)
+        #            )
+
         # blue line (debug)
         if len(self.my_agents[0].pm.path) > 1:
             my_path = [pos_transform(*p) for p in self.my_agents[0].pm.path]
@@ -238,4 +251,5 @@ class SSLExampleEnv(SSLBaseEnv):
     def draw_target(self, screen, transformer, point, color):
         x, y = transformer(point.x, point.y)
         size = 0.09 * self.field_renderer.scale
+        #size = 0.01 * self.field_renderer.scale
         pygame.draw.circle(screen, color, (x, y), size, 2)
