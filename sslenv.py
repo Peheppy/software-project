@@ -42,8 +42,9 @@ class SSLExampleEnv(SSLBaseEnv):
 
         self.fm = GameManager()
 
-        self.my_agents = {0: ExampleAgent(0, False, self.fm)}
-        self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
+        self.my_agents = {i: ExampleAgent(i, False, self.fm) for i in range(0, 11)}
+        #self.my_agents = {0: ExampleAgent(0, False, self.fm)}
+        #self.blue_agents = {i: SecondAgent(i, False, self.fm) for i in range(1, 11)}
         self.yellow_agents = {i: RandomAgent(i, True, self.fm) for i in range(0, 11)}
 
         self.gen_target_prob = 0.003
@@ -84,9 +85,9 @@ class SSLExampleEnv(SSLBaseEnv):
             if self.targets_per_round < self.max_targets:
                 self.targets_per_round += 1
 
-                self.blue_agents.pop(len(self.my_agents))
+                #self.blue_agents.pop(len(self.my_agents))
                 
-                self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm)
+                #self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm)
 
         # updates which agent is going after each target
         self.fm.update_targets_agents() 
@@ -94,7 +95,7 @@ class SSLExampleEnv(SSLBaseEnv):
         # Generate new targets
         if len(self.targets) == 0:
 
-            self.fm.agents_following_targets.clear()
+            self.fm.targets_its_agents.clear()
             for i in range(self.targets_per_round):
                 self.targets.append(Point(self.x(), self.y()))
                 
@@ -115,12 +116,12 @@ class SSLExampleEnv(SSLBaseEnv):
 
         others_actions = []
         if self.DYNAMIC_OBSTACLES:
-            for i in self.blue_agents.keys():
-                random_target = []
-                if random.uniform(0.0, 1.0) < self.gen_target_prob:
-                    random_target.append(Point(x=self.x(), y=self.y()))
-                 
-                others_actions.append(self.blue_agents[i].step(self.frame.robots_blue[i], obstacles, dict(), random_target, True))
+            #for i in self.blue_agents.keys():
+            #    random_target = []
+            #    if random.uniform(0.0, 1.0) < self.gen_target_prob:
+            #        random_target.append(Point(x=self.x(), y=self.y()))
+            #     
+            #    others_actions.append(self.blue_agents[i].step(self.frame.robots_blue[i], obstacles, dict(), random_target, True))
 
             for i in self.yellow_agents.keys():
                 random_target = []
@@ -218,7 +219,7 @@ class SSLExampleEnv(SSLBaseEnv):
         for agents in self.my_agents:
             if len(self.my_agents[agents].pm.path) > 1:
                 my_path = [pos_transform(*p) for p in self.my_agents[agents].pm.path]
-                pygame.draw.lines(self.window_surface, (0, 50*agents, 100), False, my_path, 1)
+                pygame.draw.lines(self.window_surface, (0, 10*agents, 100), False, my_path, 1)
 
         ## agents pos (debug)
         #for agent in self.fm.all_agents:

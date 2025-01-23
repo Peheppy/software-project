@@ -5,8 +5,8 @@ import heapq
 class GameManager(FieldPositions):
     def __init__(self):
         super().__init__()
-        # agent_index, target_index
-        self.agents_following_targets = {}
+        # target_index, agent_index
+        self.targets_its_agents = {}
         # awakened_agents_ind, not_relevant
         self.awakened_agents_ind = {}
         self.idle_positions = [Point(5,10),Point(15,10),Point(25,10),
@@ -16,7 +16,8 @@ class GameManager(FieldPositions):
 
     def __get_agents_dists_to_target(self, target_pos:Point):
         distances = []
-        for agent in self.awakened_agents_ind:
+        #for agent in self.awakened_agents_ind:
+        for agent in range(len(self.blue_agents)):
             # pushes dist and agent_index
             heapq.heappush(distances, (self.blue_agents[agent].dist_to(target_pos), agent))
         return distances
@@ -28,11 +29,11 @@ class GameManager(FieldPositions):
         while len(distances) > 0 and not found_agent_not_following: 
             agent_id = heapq.heappop(distances)[1]
             
-            if not self.agent_has_target(agent_id):
+            if not self.agent_has_target(agent_id) or self.agent_target(agent_id) == target_id:
                 found_agent_not_following = True
 
         if found_agent_not_following: 
-            self.agents_following_targets[agent_id] = target_id
+            self.targets_its_agents[target_id] = agent_id
 
     def update_targets_agents(self):
         for target_index in range(len(self.targets)):
@@ -41,7 +42,9 @@ class GameManager(FieldPositions):
                 self.__find_agent_to_target(target_index)
 
     def agent_has_target(self, agent_id:int):
-        return (agent_id in self.agents_following_targets)
+        return (agent_id in self.targets_its_agents.values())
 
     def agent_target(self, agent_id:int):
-        return self.agents_following_targets[agent_id]
+        for targets in self.targets_its_agents:
+            if self.targets_its_agents[targets] == agent_id:
+                return targets
