@@ -20,12 +20,6 @@ class AStarSearch(FieldGrid):
         cell.parent_i = p[0]
         cell.parent_j = p[1]
 
-    def __unblock_agent(self, grid:list, pos:list[int,int]):
-        #if grid[pos[0]][pos[1]] == False:
-        grid[pos[0]][pos[1]] = True
-        for n in self.get_neighbors(pos[0],pos[1]):
-            grid[n[0]][n[1]] = True
-
     def __expand_unblocked_region(self, grid:list, pos:list[int,int]):
         if grid[pos[0]][pos[1]] == False:
             corner_directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -37,20 +31,6 @@ class AStarSearch(FieldGrid):
                 for n in self.get_neighbors(corner_i, corner_j):
                     grid[n[0]][n[1]] = True        
 
-    #def __get_unblock_target_point(self, grid:list, pos:list[int,int]):
-    #    # if target is whithin an obstacle 
-    #    #if grid[pos[0]][pos[1]] == False:
-    #    grid[pos[0]][pos[1]] = True
-    #    for n in self.get_neighbors(pos[0],pos[1]):
-    #        # return any point from target out of obstacle region 
-    #        if grid[n[0]][n[1]] == True: return n
-    #    # if all areas are whithin an object region, go for it
-    #    grid[pos[0]][pos[1]] = True
-    #    for n in self.get_neighbors(pos[0],pos[1]):
-    #        # return any point from target out of obstacle region 
-    #        grid[n[0]][n[1]] = True
-    #    return pos
-    
     # Trace the path from source to destination
     def trace_path(self, cell_details:list, dest:list):
         path = []
@@ -62,7 +42,7 @@ class AStarSearch(FieldGrid):
             temp_col = cell_details[row][col].parent_j
             row = temp_row
             col = temp_col
-        #path.append([row, col])  # Add the source cell
+        
         path.reverse()  # Reverse the path to get it from source to destination
 
         return path
