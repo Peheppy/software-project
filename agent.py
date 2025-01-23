@@ -1,6 +1,5 @@
 from utils.ssl.Navigation import Navigation
 from utils.ssl.base_agent import BaseAgent
-from utils.Point import Point
 
 from utils.FieldPositions import FieldPositions
 from utils.FieldGrid import FieldGrid
@@ -18,16 +17,14 @@ class ExampleAgent(BaseAgent):
         if len(self.targets) == 0:
             return
         
+        self.fm.awakened_agents_ind[self.id] = True
         self.fm.update_pos_blue(self.id, self.pos)
-        self.fm.update_targets_agents()
 
-
-        self.pm.go_to_target(self.pos, self.targets[0], self.fm.get_other_agents(self.id), self)
-        print(self.fm.agents_following_targets)
-        #print(self.fm.agent_has_target(self.id))
-        #if self.fm.agent_has_target(self.id):
-        #    print(self.fm.agent_target(self.id))
-        #self.pm.go_near_target(self.pos, self.fm.yellow_agents[0], self.fm.get_other_agents(self.id), self)
+        if self.fm.agent_has_target(self.id) and self.fm.targets[self.fm.agent_target(self.id)] in self.targets:
+            target = self.fm.targets[self.fm.agent_target(self.id)]
+            self.pm.go_to_target(self.pos, target, self.fm.get_other_agents(self.id), self)
+        else:
+            self.pm.path.clear()
 
         return
 

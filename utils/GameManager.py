@@ -7,6 +7,8 @@ class GameManager(FieldPositions):
         super().__init__()
         # agent_index, target_index
         self.agents_following_targets = {}
+        # awakened_agents_ind, not_relevant
+        self.awakened_agents_ind = {}
         self.idle_positions = [Point(5,10),Point(15,10),Point(25,10),
                                Point(35,10),Point(5,30),Point(5,50),
                                Point(15,30),Point(15,50),Point(25,30),
@@ -14,22 +16,23 @@ class GameManager(FieldPositions):
 
     def __get_agents_dists_to_target(self, target_pos:Point):
         distances = []
-        for agent_index in range(len(self.blue_agents)):
+        for agent in self.awakened_agents_ind:
             # pushes dist and agent_index
-            heapq.heappush(distances, (self.blue_agents[agent_index].dist_to(target_pos), agent_index))
+            heapq.heappush(distances, (self.blue_agents[agent].dist_to(target_pos), agent))
         return distances
 
     def __find_agent_to_target(self, target_id:int):
         distances = self.__get_agents_dists_to_target(self.targets[target_id])
+        found_agent_not_following = False
 
-        while len(distances) > 0: 
-            closest_agent = heapq.heappop(distances)
-            agent_id = closest_agent[1]
+        while len(distances) > 0 and not found_agent_not_following: 
+            agent_id = heapq.heappop(distances)[1]
+            
+            if not self.agent_has_target(agent_id):
+                found_agent_not_following = True
 
-            # verify if agent is not following any target or if it is following target_id
-            if agent_id not in self.agents_following_targets.values() or self.agents_following_targets[target_id] == agent_id:
-                self.agents_following_targets[target_id] = agent_id
-                return
+        if found_agent_not_following: 
+            self.agents_following_targets[agent_id] = target_id
 
     def update_targets_agents(self):
         for target_index in range(len(self.targets)):
@@ -38,11 +41,7 @@ class GameManager(FieldPositions):
                 self.__find_agent_to_target(target_index)
 
     def agent_has_target(self, agent_id:int):
-        for item in self.agents_following_targets:
-            if agent_id == self.agents_following_targets[item]: return True
-        return False
-    
+        return (agent_id in self.agents_following_targets)
+
     def agent_target(self, agent_id:int):
-        for item in self.agents_following_targets:
-            if agent_id == self.agents_following_targets[item]: 
-                return item
+        return self.agents_following_targets[agent_id]

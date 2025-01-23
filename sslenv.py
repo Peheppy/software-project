@@ -13,10 +13,7 @@ import random
 import pygame
 from utils.CLI import Difficulty
 
-from utils.FieldPositions import FieldPositions
 from utils.GameManager import GameManager
-
-from utils.FieldGrid import FieldGrid
 
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
@@ -43,8 +40,6 @@ class SSLExampleEnv(SSLBaseEnv):
         self.rounds = self.max_rounds  ## because of the first round
         self.targets_per_round = 1
 
-
-        self.grid = FieldGrid()
         self.fm = GameManager()
 
         self.my_agents = {0: ExampleAgent(0, False, self.fm)}
@@ -67,7 +62,7 @@ class SSLExampleEnv(SSLBaseEnv):
         for target in self.targets:
             if target not in self.all_points:
                 self.all_points.push(target)
-                
+
         # Visible path drawing control
         for i in self.my_agents:
             self.robots_paths[i].push(Point(self.frame.robots_blue[i].x, self.frame.robots_blue[i].y))
@@ -91,11 +86,15 @@ class SSLExampleEnv(SSLBaseEnv):
 
                 self.blue_agents.pop(len(self.my_agents))
                 
-                #aqui tenho que fazer algo
                 self.my_agents[len(self.my_agents)] = ExampleAgent(len(self.my_agents), False, self.fm)
 
+        # updates which agent is going after each target
+        self.fm.update_targets_agents() 
+        
         # Generate new targets
         if len(self.targets) == 0:
+
+            self.fm.agents_following_targets.clear()
             for i in range(self.targets_per_round):
                 self.targets.append(Point(self.x(), self.y()))
                 
@@ -120,7 +119,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 random_target = []
                 if random.uniform(0.0, 1.0) < self.gen_target_prob:
                     random_target.append(Point(x=self.x(), y=self.y()))
-                    
+                 
                 others_actions.append(self.blue_agents[i].step(self.frame.robots_blue[i], obstacles, dict(), random_target, True))
 
             for i in self.yellow_agents.keys():
@@ -204,24 +203,6 @@ class SSLExampleEnv(SSLBaseEnv):
                 (255, 0, 255),
             )
 
-        # debug
-        for blue in self.fm.blue_agents:
-            self.draw_target(
-                self.window_surface,
-                pos_transform,
-                blue,
-                (255, 0, 255),
-            )
-
-        # debug
-        for yellow in self.fm.yellow_agents:
-            self.draw_target(
-                self.window_surface,
-                pos_transform,
-                yellow,
-                (255, 0, 255),
-            )
-
         if len(self.all_points) > 0:
             my_path = [pos_transform(*p) for p in self.all_points]
             for point in my_path:
@@ -233,23 +214,22 @@ class SSLExampleEnv(SSLBaseEnv):
         #        pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
 
 
-        #for i in range(len(self.my_agents[0].pm.grid)):
-        #    for j in range(len(self.my_agents[0].pm.grid[i])):
-        #        if self.my_agents[0].pm.grid[i][j] == False:
-        #            self.draw_target(
-        #                self.window_surface,
-        #                pos_transform,
-        #                self.my_agents[0].pm.index_to_point(i,j),
-        #                (0, 200, 0)
-        #            )
+        # agents path (debug)
+        for agents in self.my_agents:
+            if len(self.my_agents[agents].pm.path) > 1:
+                my_path = [pos_transform(*p) for p in self.my_agents[agents].pm.path]
+                pygame.draw.lines(self.window_surface, (0, 50*agents, 100), False, my_path, 1)
 
-        # blue line (debug)
-        if len(self.my_agents[0].pm.path) > 1:
-            my_path = [pos_transform(*p) for p in self.my_agents[0].pm.path]
-            pygame.draw.lines(self.window_surface, (0, 0, 200), False, my_path, 1)
+        ## agents pos (debug)
+        #for agent in self.fm.all_agents:
+        #    self.draw_target(
+        #        self.window_surface,
+        #        pos_transform,
+        #        agent,
+        #        (255, 0, 255),
+        #    )
 
     def draw_target(self, screen, transformer, point, color):
         x, y = transformer(point.x, point.y)
         size = 0.09 * self.field_renderer.scale
-        #size = 0.01 * self.field_renderer.scale
         pygame.draw.circle(screen, color, (x, y), size, 2)

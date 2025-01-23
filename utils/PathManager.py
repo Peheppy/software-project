@@ -53,8 +53,12 @@ class PathManager(FieldGrid):
         # still has points in path to go
         else:
             # verify if self has reached the current objective point
-            if agent.pos.dist_to(self.path[self.path_index]) < 0.15:
+            if not self.path_index < len(self.path):
+                pass
+            
+            elif agent.pos.dist_to(self.path[self.path_index]) < 0.15:
                 self.path_index += 1
+
             # self has not reached, so it continues to go to current objective point
             else:
                 target_velocity, target_angle_velocity = Navigation.goToPoint(agent.robot, self.path[self.path_index]) 
