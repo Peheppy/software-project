@@ -7,17 +7,16 @@ class GameManager(FieldPositions):
         super().__init__()
         # target_index, agent_index
         self.targets_its_agents = {}
-        # awakened_agents_ind, not_relevant
+        # moving_agents_ind, not_relevant
+        self.moving_agents_ind = {}
         self.awakened_agents_ind = {}
-        self.idle_positions = [Point(5,10),Point(15,10),Point(25,10),
-                               Point(35,10),Point(5,30),Point(5,50),
-                               Point(15,30),Point(15,50),Point(25,30),
-                               Point(25,50),Point(35,30)]
+        for index in range(11):
+            self.moving_agents_ind[index] = False
 
     def __get_agents_dists_to_target(self, target_pos:Point):
         distances = []
-        #for agent in self.awakened_agents_ind:
-        for agent in range(len(self.blue_agents)):
+        #for agent in range(len(self.blue_agents)):
+        for agent in self.awakened_agents_ind:
             # pushes dist and agent_index
             heapq.heappush(distances, (self.blue_agents[agent].dist_to(target_pos), agent))
         return distances
@@ -34,6 +33,8 @@ class GameManager(FieldPositions):
 
         if found_agent_not_following: 
             self.targets_its_agents[target_id] = agent_id
+
+        del distances
 
     def update_targets_agents(self):
         for target_index in range(len(self.targets)):
