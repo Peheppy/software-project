@@ -12,8 +12,7 @@ import random
 import pygame
 from utils.CLI import Difficulty
 
-from utils.GameManager import GameManager
-
+from utils.TargetPriorityManager import TargetPriorityManager
 class SSLExampleEnv(SSLBaseEnv):
     def __init__(self, render_mode="human", difficulty=Difficulty.EASY):
         field = 2   # 1: SSL Div B    2: SSL Software challenge
@@ -39,7 +38,7 @@ class SSLExampleEnv(SSLBaseEnv):
         self.rounds = self.max_rounds  ## because of the first round
         self.targets_per_round = 1
 
-        self.fm = GameManager()
+        self.fm = TargetPriorityManager()
 
         self.my_agents = {0: MainAgent(0, False, self.fm)}
         self.blue_agents = {i: RandomAgent(i, False, self.fm) for i in range(1, 11)}
@@ -56,10 +55,6 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
-        #i = 0
-        #for target_ind in range(len(self.targets)):
-        #    self.fm.update_pos_target(i,self.targets[target_ind])
-        #    i+=1
 
         # Keep only the last M target points
         for target in self.targets:
@@ -94,13 +89,13 @@ class SSLExampleEnv(SSLBaseEnv):
         # Generate new targets
         if len(self.targets) == 0:
 
-            self.fm.targets_its_agents.clear()
+            self.fm.target_agent.clear()
             for i in range(self.targets_per_round):
                 self.targets.append(Point(self.x(), self.y()))
                 
                 # update targets positions
                 self.fm.update_pos_target(i,self.targets[i])
-                self.fm.visited_targets[i] = False
+                self.fm.v_targets[i] = False
         
         obstacles = {id: robot for id, robot in self.frame.robots_blue.items()}
         for i in range(0, self.n_robots_yellow):
@@ -170,7 +165,6 @@ class SSLExampleEnv(SSLBaseEnv):
             self.fm.update_pos_blue(i, Point(pos[0],pos[1]))
             
             pos_frame.robots_blue[i] = Robot(x=pos[0], y=pos[1], theta=theta())
-        
 
         for i in range(0, self.n_robots_yellow):
             pos = (self.x(), self.y())
@@ -185,7 +179,6 @@ class SSLExampleEnv(SSLBaseEnv):
             pos_frame.robots_yellow[i] = Robot(x=pos[0], y=pos[1], theta=theta())
 
         return pos_frame
-    
 
     def _render(self):
         def pos_transform(pos_x, pos_y):
@@ -214,12 +207,13 @@ class SSLExampleEnv(SSLBaseEnv):
         #        my_path = [pos_transform(*p) for p in self.robots_paths[i]]
         #        pygame.draw.lines(self.window_surface, (255, 0, 0), False, my_path, 1)
 
-
         # agents path (debug)
         for agents in self.my_agents:
             if len(self.my_agents[agents].pm.path) > 1:
                 my_path = [pos_transform(*p) for p in self.my_agents[agents].pm.path]
                 pygame.draw.lines(self.window_surface, (0, 30*agents, 100), False, my_path, 1)
+                for point in my_path:
+                    pygame.draw.circle(self.window_surface, (0, 30*agents, 100), point, 3)
 
         ## agents pos (debug)
         #for agent in self.fm.all_agents:

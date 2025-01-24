@@ -5,7 +5,7 @@ import heapq
 
 class Cell:
     def __init__(self):
-        self.parent_i = self.parent_j = 0
+        self.parent = [int,int]
         self.f = self.g = float("inf")
         self.h = 0
 
@@ -17,15 +17,14 @@ class AStarSearch(FieldGrid):
         cell.g = g
         cell.h = h
         cell.f = g + h
-        cell.parent_i = p[0]
-        cell.parent_j = p[1]
+        cell.parent[0], cell.parent[1] = p[0], p[1] 
 
+    # sets a target worth of grid points and its outline points as free
     def __expand_unblocked_region(self, grid:list, pos:list[int,int]):
         if grid[pos[0]][pos[1]] == False:
             corner_directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
             for dir in corner_directions:
-                corner_i = pos[0] + dir[0]
-                corner_j = pos[1] + dir[1]
+                corner_i, corner_j = pos[0] + dir[0], pos[1] + dir[1]
                 if self.is_valid(corner_i, corner_j):
                     grid[corner_i][corner_j] = True
                 for n in self.get_neighbors(corner_i, corner_j):
@@ -34,14 +33,12 @@ class AStarSearch(FieldGrid):
     # Trace the path from source to destination
     def trace_path(self, cell_details:list, dest:list):
         path = []
-        row = dest[0]
-        col = dest[1]
-        while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):  # Continue until the source cell
+        row, col = dest[0], dest[1]
+        # Continue until the source cell
+        while not (cell_details[row][col].parent[0] == row and cell_details[row][col].parent[1] == col):  
             path.append([row, col])
-            temp_row = cell_details[row][col].parent_i
-            temp_col = cell_details[row][col].parent_j
-            row = temp_row
-            col = temp_col
+            temp_row, temp_col = cell_details[row][col].parent[0], cell_details[row][col].parent[1]
+            row, col = temp_row, temp_col
         
         path.reverse()  # Reverse the path to get it from source to destination
 
@@ -49,6 +46,8 @@ class AStarSearch(FieldGrid):
 
     def search(self, grid: list, src: list, dest: list, max_attempts: int = 8):
 
+        # this makes sure both target and agent are not inside
+        # another agent blocked area
         self.__expand_unblocked_region(grid, src)
         self.__expand_unblocked_region(grid, dest)
 
@@ -62,7 +61,7 @@ class AStarSearch(FieldGrid):
         heapq.heappush(open_list, (0.0, i, j))
 
         while open_list:
-            f, i, j = heapq.heappop(open_list)
+            _, i, j = heapq.heappop(open_list)
             closed_list[i][j] = True
 
             directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -71,8 +70,8 @@ class AStarSearch(FieldGrid):
 
                 if self.is_valid(new_i, new_j) and self.is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
                     if self.is_destination(new_i, new_j, dest):
-                        cell_details[new_i][new_j].parent_i = i
-                        cell_details[new_i][new_j].parent_j = j
+                        cell_details[new_i][new_j].parent[0] = i
+                        cell_details[new_i][new_j].parent[1] = j
                         return self.trace_path(cell_details, dest)
 
                     g_new = cell_details[i][j].g + 1.0

@@ -56,7 +56,7 @@ class PathManager(FieldGrid):
             if not self.path_index < len(self.path):
                 pass
             
-            elif agent.pos.dist_to(self.path[self.path_index]) < 0.15:
+            elif agent.pos.dist_to(self.path[self.path_index]) < 0.18:
                 self.path_index += 1
 
             # self has not reached, so it continues to go to current objective point

@@ -7,9 +7,9 @@ import random
 from utils.FieldPositions import FieldPositions
 
 class RandomAgent(BaseAgent):
-    def __init__(self, id=0, yellow=False, f_m = FieldPositions(), vel_mult=0.3):
+    def __init__(self, id=0, yellow=False, fp = FieldPositions(), vel_mult=0.3):
         super().__init__(id, yellow)
-        self.f_m = f_m
+        self.fp = fp
         self.vel_mult = vel_mult
 
     def decision(self):
@@ -17,9 +17,9 @@ class RandomAgent(BaseAgent):
             return
 
         if self.yellow:
-            self.f_m.update_pos_yellow(self.id,self.pos)
+            self.fp.update_pos_yellow(self.id,self.pos)
         else:
-            self.f_m.update_pos_blue(self.id,self.pos)
+            self.fp.update_pos_blue(self.id,self.pos)
 
         target_velocity, target_angle_velocity = Navigation.goToPoint(self.robot, self.targets[0])
 
