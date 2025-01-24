@@ -17,6 +17,7 @@ class MainAgent(BaseAgent):
         self.fm.update_pos_blue(self.id, self.pos)
         self.fm.update_targets_agents()
 
+        #if self.fm.agent_has_target(self.id):
         if self.fm.agent_has_target(self.id) and self.fm.targets[self.fm.agent_target(self.id)] in self.targets:
             target = self.fm.targets[self.fm.agent_target(self.id)]
             self.pm.go_to_target(self.pos, target, self.fm.get_other_agents(self.id), self)

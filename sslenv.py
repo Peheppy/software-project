@@ -56,6 +56,10 @@ class SSLExampleEnv(SSLBaseEnv):
         return np.array([ball.x, ball.y, robot.x, robot.y])
 
     def _get_commands(self, actions):
+        #i = 0
+        #for target_ind in range(len(self.targets)):
+        #    self.fm.update_pos_target(i,self.targets[target_ind])
+        #    i+=1
 
         # Keep only the last M target points
         for target in self.targets:
@@ -96,6 +100,7 @@ class SSLExampleEnv(SSLBaseEnv):
                 
                 # update targets positions
                 self.fm.update_pos_target(i,self.targets[i])
+                self.fm.visited_targets[i] = False
         
         obstacles = {id: robot for id, robot in self.frame.robots_blue.items()}
         for i in range(0, self.n_robots_yellow):

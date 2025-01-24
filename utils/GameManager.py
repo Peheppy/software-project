@@ -24,6 +24,7 @@ class GameManager(FieldPositions):
         while len(distances) > 0 and not found_agent_not_following: 
             agent_id = heapq.heappop(distances)[1]
             
+            #if not self.agent_has_target(agent_id) or self.agent_target(agent_id) == target_id:
             if not self.agent_has_target(agent_id) or self.agent_target(agent_id) == target_id:
                 found_agent_not_following = True
 
@@ -33,9 +34,20 @@ class GameManager(FieldPositions):
         del distances
 
     def update_targets_agents(self):
+
+        for target_ind in self.targets_its_agents:
+            if self.is_close_to(self.targets[target_ind], self.blue_agents[self.targets_its_agents[target_ind]]):
+                #self.targets.pop(target_ind)
+                self.visited_targets[target_ind] = True
+                #self.targets_its_agents.pop(target_ind)
+
+        for target_ind in range(len(self.visited_targets)):
+            if self.visited_targets[target_ind] == True and target_ind in self.targets_its_agents:
+                self.targets_its_agents.pop(target_ind)
+
         for target_index in range(len(self.targets)):
             # verify if there is a target already in its index
-            if not self.targets[target_index] == Point(-10,-10):
+            if not self.targets[target_index] == Point(-10,-10) and self.visited_targets[target_index] == False:
                 self.__find_agent_to_target(target_index)
 
     def agent_has_target(self, agent_id:int):
